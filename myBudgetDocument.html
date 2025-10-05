@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>myBudget - Complete System Architecture</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default'
+        });
+    </script>
+    <style>
+        html {
+            color: #1a1a1a;
+            background-color: #fdfdfd;
+        }
+
+        body {
+            margin: 0 auto;
+            max-width: 36em;
+            padding-left: 50px;
+            padding-right: 50px;
+            padding-top: 50px;
+            padding-bottom: 50px;
+            hyphens: auto;
+            overflow-wrap: break-word;
+            text-rendering: optimizeLegibility;
+            font-kerning: normal;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                font-size: 0.9em;
+                padding: 12px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        @media print {
+            html {
+                background-color: white;
+            }
+
+            body {
+                background-color: transparent;
+                color: black;
+                font-size: 12pt;
+            }
+
+            p,
+            h2,
+            h3 {
+                orphans: 3;
+                widows: 3;
+            }
+
+            h2,
+            h3,
+            h4 {
+                page-break-after: avoid;
+            }
+        }
+
+        p {
+            margin: 1em 0;
+        }
+
+        a {
+            color: #1a1a1a;
+        }
+
+        a:visited {
+            color: #1a1a1a;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        svg {
+            height: auto;
+            max-width: 100%;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin-top: 1.4em;
+        }
+
+        h5,
+        h6 {
+            font-size: 1em;
+            font-style: italic;
+        }
+
+        h6 {
+            font-weight: normal;
+        }
+
+        ol,
+        ul {
+            padding-left: 1.7em;
+            margin-top: 1em;
+        }
+
+        li>ol,
+        li>ul {
+            margin-top: 0;
+        }
+
+        blockquote {
+            margin: 1em 0 1em 1.7em;
+            padding-left: 1em;
+            border-left: 2px solid #e6e6e6;
+            color: #606060;
+        }
+
+        code {
+            font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+            font-size: 85%;
+            margin: 0;
+            hyphens: manual;
+        }
+
+        pre {
+            margin: 1em 0;
+            overflow: auto;
+        }
+
+        pre code {
+            padding: 0;
+            overflow: visible;
+            overflow-wrap: normal;
+        }
+
+        .sourceCode {
+            background-color: transparent;
+            overflow: visible;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #1a1a1a;
+            height: 1px;
+            margin: 1em 0;
+        }
+
+        table {
+            margin: 1em 0;
+            border-collapse: collapse;
+            width: 100%;
+            overflow-x: auto;
+            display: block;
+            font-variant-numeric: lining-nums tabular-nums;
+        }
+
+        table caption {
+            margin-bottom: 0.75em;
+        }
+
+        tbody {
+            margin-top: 0.5em;
+            border-top: 1px solid #1a1a1a;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        th {
+            border-top: 1px solid #1a1a1a;
+            padding: 0.25em 0.5em 0.25em 0.5em;
+        }
+
+        td {
+            padding: 0.125em 0.5em 0.25em 0.5em;
+        }
+
+        header {
+            margin-bottom: 4em;
+            text-align: center;
+        }
+
+        #TOC li {
+            list-style: none;
+        }
+
+        #TOC ul {
+            padding-left: 1.3em;
+        }
+
+        #TOC>ul {
+            padding-left: 0;
+        }
+
+        #TOC a:not(:hover) {
+            text-decoration: none;
+        }
+
+        code {
+            white-space: pre-wrap;
+        }
+
+        span.smallcaps {
+            font-variant: small-caps;
+        }
+
+        div.columns {
+            display: flex;
+            gap: min(4vw, 1.5em);
+        }
+
+        div.column {
+            flex: auto;
+            overflow-x: auto;
+        }
+
+        div.hanging-indent {
+            margin-left: 1.5em;
+            text-indent: -1.5em;
+        }
+
+        ul.task-list[class] {
+            list-style: none;
+        }
+
+        ul.task-list li input[type="checkbox"] {
+            font-size: inherit;
+            width: 0.8em;
+            margin: 0 0.8em 0.2em -1.6em;
+            vertical-align: middle;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
+        pre>code.sourceCode {
+            white-space: pre;
+            position: relative;
+        }
+
+        pre>code.sourceCode>span {
+            display: inline-block;
+            line-height: 1.25;
+        }
+
+        pre>code.sourceCode>span:empty {
+            height: 1.2em;
+        }
+
+        .sourceCode {
+            overflow: visible;
+        }
+
+        code.sourceCode>span {
+            color: inherit;
+            text-decoration: inherit;
+        }
+
+        div.sourceCode {
+            margin: 1em 0;
+        }
+
+        pre.sourceCode {
+            margin: 0;
+        }
+
+        @media screen {
+            div.sourceCode {
+                overflow: auto;
+            }
+        }
+
+        @media print {
+            pre>code.sourceCode {
+                white-space: pre-wrap;
+            }
+
+            pre>code.sourceCode>span {
+                text-indent: -5em;
+                padding-left: 5em;
+            }
+        }
+
+        pre.numberSource code {
+            counter-reset: source-line 0;
+        }
+
+        pre.numberSource code>span {
+            position: relative;
+            left: -4em;
+            counter-increment: source-line;
+        }
+
+        pre.numberSource code>span>a:first-child::before {
+            content: counter(source-line);
+            position: relative;
+            left: -1em;
+            text-align: right;
+            vertical-align: baseline;
+            border: none;
+            display: inline-block;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            padding: 0 4px;
+            width: 4em;
+            color: #aaaaaa;
+        }
+
+        pre.numberSource {
+            margin-left: 3em;
+            border-left: 1px solid #aaaaaa;
+            padding-left: 4px;
+        }
+
+        div.sourceCode {}
+
+        @media screen {
+            pre>code.sourceCode>span>a:first-child::before {
+                text-decoration: underline;
+            }
+        }
+
+        code span.al {
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        code span.an {
+            color: #60a0b0;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        code span.at {
+            color: #7d9029;
+        }
+
+        code span.bn {
+            color: #40a070;
+        }
+
+        code span.bu {
+            color: #008000;
+        }
+
+        code span.cf {
+            color: #007020;
+            font-weight: bold;
+        }
+
+        code span.ch {
+            color: #4070a0;
+        }
+
+        code span.cn {
+            color: #880000;
+        }
+
+        code span.co {
+            color: #60a0b0;
+            font-style: italic;
+        }
+
+        code span.cv {
+            color: #60a0b0;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        code span.do {
+            color: #ba2121;
+            font-style: italic;
+        }
+
+        code span.dt {
+            color: #902000;
+        }
+
+        code span.dv {
+            color: #40a070;
+        }
+
+        code span.er {
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        code span.ex {}
+
+        code span.fl {
+            color: #40a070;
+        }
+
+        code span.fu {
+            color: #06287e;
+        }
+
+        code span.im {
+            color: #008000;
+            font-weight: bold;
+        }
+
+        code span.in {
+            color: #60a0b0;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        code span.kw {
+            color: #007020;
+            font-weight: bold;
+        }
+
+        code span.op {
+            color: #666666;
+        }
+
+        code span.ot {
+            color: #007020;
+        }
+
+        code span.pp {
+            color: #bc7a00;
+        }
+
+        code span.sc {
+            color: #4070a0;
+        }
+
+        code span.ss {
+            color: #bb6688;
+        }
+
+        code span.st {
+            color: #4070a0;
+        }
+
+        code span.va {
+            color: #19177c;
+        }
+
+        code span.vs {
+            color: #4070a0;
+        }
+
+        code span.wa {
+            color: #60a0b0;
+            font-weight: bold;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <header id="title-block-header">
+        <h1 class="title">myBudget - Complete System Architecture</h1>
+    </header>
+    <h2 id="system-overview">System Overview</h2>
+    <p><strong>myBudget</strong> is a monolithic personal finance tracking
+        app with AI-powered natural language transaction entry. Users can track
+        expenses, income, set budgets, and view analytics.</p>
+    <p><strong>Tech Stack:</strong></p>
+    <ul>
+        <li>Frontend: React Native (Expo)</li>
+        <li>Backend: Node.js/Bun (monolithic)</li>
+        <li>Database: MongoDB/Firestore</li>
+        <li>Auth: Firebase Auth</li>
+        <li>AI: Gemini + NLP</li>
+    </ul>
+    <hr />
+    <h2 id="data-models">Data Models</h2>
+    <div class="sourceCode" id="cb1">
+        <pre class="sourceCode typescript"><code class="sourceCode typescript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>User {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  id<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  email<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  passwordHash<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  firstName<span class="op">?:</span> <span class="dt">string</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  lastName<span class="op">?:</span> <span class="dt">string</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  phone<span class="op">?:</span> <span class="dt">string</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  createdAt<span class="op">:</span> timestamp</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  lastLogin<span class="op">:</span> timestamp</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>Session {</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  id<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  userId<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  token<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  createdAt<span class="op">:</span> timestamp</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  expiresAt<span class="op">:</span> timestamp</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>Transaction {</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  id<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  userId<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  type<span class="op">:</span> <span class="st">&#39;income&#39;</span> <span class="op">|</span> <span class="st">&#39;expense&#39;</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  amount<span class="op">:</span> <span class="dt">number</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  category<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  description<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  date<span class="op">:</span> timestamp</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  createdAt<span class="op">:</span> timestamp</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>Budget {</span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  id<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>  userId<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>  amount<span class="op">:</span> <span class="dt">number</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>  month<span class="op">:</span> <span class="dt">number</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>  year<span class="op">:</span> <span class="dt">number</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  createdAt<span class="op">:</span> timestamp</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>PasswordReset {</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>  id<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  email<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  resetCode<span class="op">:</span> <span class="dt">string</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>  expiresAt<span class="op">:</span> timestamp</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>  createdAt<span class="op">:</span> timestamp</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>}</span></pre>
+    </div>
+    <hr />
+    <h2 id="authentication-flows">1. Authentication Flows</h2>
+    <h3 id="user-signup">1.1 User Signup</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant UserDomain
+    User->>System: Selects "Sign Up"
+    System->>User: Display signup form (email, password, confirm password)
+    
+    User->>System: Fills in details and submits
+    System->>System: Validate input (email format, password rules)
+    
+    alt Invalid input
+        System->>User: Show error, request correction
+    else Valid input
+        System->>UserDomain: createUser(email, password)
+        UserDomain->>UserDomain: Check if email exists
+        
+        alt Email already exists
+            UserDomain->>System: Email exists error
+            System->>User: "Email already registered"
+        else Email available
+            UserDomain->>UserDomain: Hash password & create account
+            UserDomain->>System: User created, return token
+            System->>User: "Account created successfully"
+            System->>User: Redirect to home screen
+        end
+    end</pre>
+    <h3 id="user-login">1.2 User Login</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant UserDomain
+
+    User->>System: Selects "Login"
+    System->>User: Display login form&lt;br/&gt;(email, password)
+    
+    User->>System: Enters credentials and submits
+    System->>UserDomain: loginUser(email, password)
+    
+    alt Invalid credentials
+        UserDomain->>System: Authentication failed
+        System->>User: "Invalid email or password"&lt;br/&gt;Offer "Forgot Password"
+    else Valid credentials
+        UserDomain->>UserDomain: Generate token&lt;br/&gt;Update last login
+        UserDomain->>System: Login successful, return token
+        System->>User: Redirect to home screen
+    end</pre>
+    <h3 id="forgot-password">1.3 Forgot Password</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant UserDomain
+    participant EmailService
+
+    User->>System: Clicks "Forgot Password"
+    System->>User: Display email input
+    
+    User->>System: Enters email and submits
+    System->>UserDomain: resetPasswordRequest(email)
+    UserDomain->>UserDomain: Check if user exists
+    
+    Note over UserDomain: Always return success&lt;br/&gt;(security: hide user existence)
+    
+    alt User exists
+        UserDomain->>UserDomain: Generate 6-digit code
+        UserDomain->>UserDomain: Store code with expiry (15 min)
+        UserDomain->>EmailService: Send reset email with code
+    end
+    
+    UserDomain->>System: Success response
+    System->>User: "Check your email for reset code"
+    
+    User->>System: Enters code and new password
+    System->>UserDomain: resetPasswordConfirm(email, code, newPassword)
+    
+    alt Code invalid or expired
+        UserDomain->>System: Validation error
+        System->>User: "Invalid or expired code"&lt;br/&gt;Allow retry
+    else Code valid
+        UserDomain->>UserDomain: Hash new password&lt;br/&gt;Update user&lt;br/&gt;Clear reset code&lt;br/&gt;Clear all sessions
+        UserDomain->>System: Password reset successful
+        System->>User: "Password reset successful"
+        System->>User: Redirect to login
+    end</pre>
+    <h3 id="change-password">1.4 Change Password</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant UserDomain
+
+    User->>System: Navigates to Settings
+    User->>System: Selects "Change Password"
+    System->>User: Display password form&lt;br/&gt;(current, new, confirm)
+    
+    User->>System: Enters passwords and submits
+    System->>System: Validate new passwords match
+    System->>UserDomain: changePassword(userId, currentPassword, newPassword)
+    
+    alt Current password incorrect
+        UserDomain->>System: Authentication failed
+        System->>User: "Current password incorrect"
+    else Current password correct
+        UserDomain->>UserDomain: Hash new password&lt;br/&gt;Update user&lt;br/&gt;Clear other sessions
+        UserDomain->>System: Password changed
+        System->>User: "Password changed successfully"
+    end</pre>
+    <h3 id="logout">1.5 Logout</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant UserDomain
+
+    User->>System: Clicks "Logout"
+    System->>UserDomain: logoutUser(token)
+    UserDomain->>UserDomain: Delete session
+    UserDomain->>System: Logout successful
+    System->>User: "Logged out successfully"
+    System->>User: Redirect to login</pre>
+    <h3 id="edit-profile">1.6 Edit Profile</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant UserDomain
+
+    User->>System: Navigates to Profile
+    System->>UserDomain: getUser(userId)
+    UserDomain->>System: User data
+    System->>User: Display profile form with current data
+    
+    User->>System: Updates fields and submits
+    System->>System: Validate input
+    System->>UserDomain: updateProfile(userId, profileData)
+    
+    alt Validation fails
+        UserDomain->>System: Validation error
+        System->>User: Show error, request correction
+    else Validation passes
+        UserDomain->>UserDomain: Update user record
+        UserDomain->>System: Profile updated
+        System->>User: "Profile updated successfully"
+    end</pre>
+    <hr />
+    <h2 id="transaction-management-flows">2. Transaction Management
+        Flows</h2>
+    <h3 id="add-expense-manual">2.1 Add Expense (Manual)</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant TransactionDomain
+
+    User->>System: Clicks "Add Expense"
+    System->>User: Display expense form&lt;br/&gt;(amount, category, description, date)
+    
+    User->>System: Enters details and submits
+    System->>System: Validate input
+    
+    alt Invalid input
+        System->>User: Show error, request correction
+    else Valid input
+        System->>TransactionDomain: createExpense(userId, data)
+        TransactionDomain->>TransactionDomain: Create transaction record
+        TransactionDomain->>System: Expense created
+        System->>User: "Expense added successfully"
+        System->>User: Show updated expense history
+    end</pre>
+    <h3 id="add-income-manual">2.2 Add Income (Manual)</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant TransactionDomain
+
+    User->>System: Clicks "Add Income"
+    System->>User: Display income form&lt;br/&gt;(amount, category, description, date)
+    
+    User->>System: Enters details and submits
+    System->>System: Validate input
+    
+    alt Invalid input
+        System->>User: Show error, request correction
+    else Valid input
+        System->>TransactionDomain: createIncome(userId, data)
+        TransactionDomain->>TransactionDomain: Create transaction record
+        TransactionDomain->>System: Income created
+        System->>User: "Income added successfully"
+        System->>User: Show updated income list
+    end</pre>
+    <h3 id="add-expense-via-nlp-ai">2.3 Add Expense via NLP (AI)</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant NLPDomain
+    participant AIService
+    participant TransactionDomain
+
+    User->>System: Clicks "Quick Add"
+    System->>User: Display text input
+    
+    User->>System: Types: "Spent 500 on groceries today"
+    System->>NLPDomain: parseNaturalLanguage(text)
+    NLPDomain->>AIService: Process with Gemini API 
+    AIService->>NLPDomain: Parsed data&lt;br/&gt;(type, amount, category, date)
+    NLPDomain->>System: Return structured data
+    System->>User: Display pre-filled form&lt;br/&gt;"Review this expense"
+    
+    alt User cancels
+        User->>System: Clicks "Cancel"
+        System->>User: Close form
+    else User confirms
+        User->>System: Reviews/edits and clicks "Save"
+        System->>TransactionDomain: createExpense(userId, data)
+        TransactionDomain->>System: Expense created
+        System->>User: "Expense added successfully"
+    end</pre>
+    <p><code>type</code>: Signal’s to the app, if transaction is an income
+        or expense (Sig0). ### 2.4 Add Income via NLP (AI)</p>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant NLPDomain
+    participant AIService
+    participant TransactionDomain
+
+    User->>System: Clicks "Quick Add"
+    System->>User: Display text input
+    
+    User->>System: Types: "Got 20,000 salary today"
+    System->>NLPDomain: parseNaturalLanguage(text)
+    NLPDomain->>AIService: Process with Gemini API
+    AIService->>NLPDomain: Parsed data&lt;br/&gt;(type, amount, category, date)
+    NLPDomain->>System: Return structured data
+    System->>User: Display pre-filled form&lt;br/&gt;"Review this income"
+    
+    alt User cancels
+        User->>System: Clicks "Cancel"
+        System->>User: Close form
+    else User confirms
+        User->>System: Reviews/edits and clicks "Save"
+        System->>TransactionDomain: createIncome(userId, data)
+        TransactionDomain->>System: Income created
+        System->>User: "Income added successfully"
+    end</pre>
+    <h3 id="edit-transaction">2.5 Edit Transaction</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant TransactionDomain
+
+    User->>System: Views transaction history
+    User->>System: Clicks edit on transaction
+    System->>TransactionDomain: getTransaction(transactionId)
+    TransactionDomain->>System: Transaction data
+    System->>User: Display edit form with current data
+    
+    User->>System: Modifies fields and clicks "Save"
+    System->>System: Validate input
+    System->>TransactionDomain: updateTransaction(transactionId, data)
+    
+    alt Not found or unauthorized
+        TransactionDomain->>System: Error
+        System->>User: Show error message
+    else Update successful
+        TransactionDomain->>TransactionDomain: Update record
+        TransactionDomain->>System: Transaction updated
+        System->>User: "Transaction updated successfully"
+        System->>User: Refresh transaction list
+    end</pre>
+    <h3 id="delete-transaction">2.6 Delete Transaction</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant TransactionDomain
+
+    User->>System: Views transaction history
+    User->>System: Clicks delete on transaction
+    System->>User: Show confirmation dialog
+    
+    alt User cancels
+        User->>System: Clicks "Cancel"
+        System->>User: Close dialog
+    else User confirms
+        User->>System: Clicks "Delete"
+        System->>TransactionDomain: deleteTransaction(transactionId, userId)
+        
+        alt Not found or unauthorized
+            TransactionDomain->>System: Error
+            System->>User: Show error message
+        else Delete successful
+            TransactionDomain->>TransactionDomain: Delete record
+            TransactionDomain->>System: Transaction deleted
+            System->>User: "Transaction deleted successfully"
+            System->>User: Refresh transaction list
+        end
+    end</pre>
+    <h3 id="view-monthly-history">2.7 View Monthly History</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant TransactionDomain
+
+    User->>System: Navigates to History tab
+    System->>TransactionDomain: getTransactions(userId, currentMonth, currentYear)
+    
+    alt No transactions found
+        TransactionDomain->>System: Empty list
+        System->>User: "No transactions yet"
+    else Transactions found
+        TransactionDomain->>System: Transaction list
+        System->>User: Display transactions&lt;br/&gt;ordered by date
+    end
+    
+    opt User changes month
+        User->>System: Selects different month
+        System->>TransactionDomain: getTransactions(userId, selectedMonth, year)
+        TransactionDomain->>System: Transaction list
+        System->>User: Display updated transactions
+    end</pre>
+    <hr />
+    <h2 id="budget-analytics-flows">3. Budget & Analytics Flows</h2>
+    <h3 id="add-monthly-budget">3.1 Add Monthly Budget</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant BudgetDomain
+
+    User->>System: Navigates to Budget tab
+    User->>System: Clicks "Add Budget"
+    System->>User: Display budget input form
+    
+    User->>System: Enters amount and submits
+    System->>System: Validate amount
+    System->>BudgetDomain: setBudget(userId, amount, month, year)
+    
+    alt Budget already exists
+        BudgetDomain->>BudgetDomain: Update existing budget
+    else New budget
+        BudgetDomain->>BudgetDomain: Create budget record
+    end
+    
+    BudgetDomain->>System: Budget saved
+    System->>User: "Budget set successfully"
+    System->>User: Show budget progress</pre>
+    <h3 id="track-budget-progress">3.2 Track Budget Progress</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant BudgetDomain
+    participant TransactionDomain
+
+    User->>System: Opens Budget Progress screen
+    System->>BudgetDomain: getBudget(userId, month, year)
+    
+    alt No budget set
+        BudgetDomain->>System: No budget found
+        System->>User: "No budget set"&lt;br/&gt;Show "Add Budget" button
+    else Budget exists
+        BudgetDomain->>System: Budget amount
+        System->>TransactionDomain: getTotalExpenses(userId, month, year)
+        TransactionDomain->>System: Total spent
+        System->>System: Calculate:&lt;br/&gt;- remaining&lt;br/&gt;- percentage used
+        System->>User: Display progress bar&lt;br/&gt;and statistics
+        
+        alt Overspending detected
+            System->>User: Show warning alert
+        end
+    end</pre>
+    <h3 id="get-overspending-alerts">3.3 Get Overspending Alerts</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant BudgetDomain
+    participant TransactionDomain
+    participant NotificationService
+
+    Note over System: Triggered after adding expense
+
+    System->>BudgetDomain: getBudget(userId, month, year)
+    BudgetDomain->>System: Budget amount
+    System->>TransactionDomain: getTotalExpenses(userId, month, year)
+    TransactionDomain->>System: Total spent
+    
+    alt Spending exceeds budget
+        System->>System: Calculate overage
+        System->>NotificationService: sendOverspendingAlert(userId, overage)
+        NotificationService->>System: Alert sent
+        System->>User: Display overspending notification&lt;br/&gt;"You&#39;ve exceeded your budget by X"
+    else Within budget
+        Note over System: No action needed
+    end</pre>
+    <h3 id="view-monthly-summary">3.4 View Monthly Summary</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant TransactionDomain
+
+    User->>System: Navigates to Summary tab
+    System->>TransactionDomain: getMonthlySummary(userId, month, year)
+    TransactionDomain->>TransactionDomain: Calculate total income, total expenses, net balance
+    TransactionDomain->>System: Summary data
+    System->>User: Display summary cards (Total Income, Total Expenses, Net Balance)
+</pre>
+    <h3 id="view-spending-charts">3.5 View Spending Charts</h3>
+    <pre class="mermaid">sequenceDiagram
+    actor User
+    participant System
+    participant TransactionDomain
+
+    User->>System: Navigates to Charts tab
+    System->>TransactionDomain: getSpendingByCategory(userId, month, year)
+    
+    alt No data available
+        TransactionDomain->>System: Empty result
+        System->>User: "No spending data yet"
+    else Data available
+        TransactionDomain->>TransactionDomain: Group by category&lt;br/&gt;Calculate percentages
+        TransactionDomain->>System: Category breakdown
+        System->>User: Display chart
+    end
+    
+    opt User selects category
+        User->>System: Clicks on category
+        System->>TransactionDomain: getTransactionsByCategory(category)
+        TransactionDomain->>System: Filtered transactions
+        System->>User: Show detailed transactions
+    end</pre>
+    <hr />
+    <h2 id="system-architecture-diagram">4. System Architecture Diagram</h2>
+    <pre class="mermaid">graph TB
+    subgraph "Client Layer"
+        A[React Native App]
+        A1[Auth Screens]
+        A2[Transaction Screens]
+        A3[Budget Screens]
+        A4[Analytics Screens]
+        A --&gt; A1
+        A --&gt; A2
+        A --&gt; A3
+        A --&gt; A4
+    end
+    
+    subgraph "Server Layer"
+        B[Express/Fastify Server]
+        B1[JWT Middleware]
+        B2[Rate Limiter]
+        B3[Error Handler]
+        B --&gt; B1
+        B --&gt; B2
+        B --&gt; B3
+    end
+    
+    subgraph "Business Logic Layer"
+        C1[UserDomain]
+        C2[TransactionDomain]
+        C3[BudgetDomain]
+        C4[AnalyticsDomain]
+        C5[NLPDomain]
+    end
+    
+    subgraph "External Services"
+        D1[Firebase Auth]
+        D2[Gemini AI API]
+        D3[Email Service]
+        D4[Push Notifications]
+    end
+    
+    subgraph "Data Layer"
+        E[(MongoDB/Firestore)]
+        E1[Users Collection]
+        E2[Transactions Collection]
+        E3[Budgets Collection]
+        E4[Sessions Collection]
+        E --&gt; E1
+        E --&gt; E2
+        E --&gt; E3
+        E --&gt; E4
+    end
+    
+    A --&gt; B
+    B --&gt; C1
+    B --&gt; C2
+    B --&gt; C3
+    B --&gt; C4
+    B --&gt; C5
+    
+    C1 --&gt; D1
+    C1 --&gt; D3
+    C5 --&gt; D2
+    C3 --&gt; D4
+    
+    C1 --&gt; E
+    C2 --&gt; E
+    C3 --&gt; E
+    C4 --&gt; E</pre>
+    <hr />
+    <h2 id="api-endpoints-summary">5. API Endpoints Summary</h2>
+    <h3 id="authentication">Authentication</h3>
+    <table>
+        <colgroup>
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Method</th>
+                <th>Endpoint</th>
+                <th>Request Body</th>
+                <th>Response</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>POST</td>
+                <td><code>/auth/signup</code></td>
+                <td><code>{email, password}</code></td>
+                <td><code>{userId, token}</code></td>
+            </tr>
+            <tr>
+                <td>POST</td>
+                <td><code>/auth/login</code></td>
+                <td><code>{email, password}</code></td>
+                <td><code>{userId, token}</code></td>
+            </tr>
+            <tr>
+                <td>POST</td>
+                <td><code>/auth/logout</code></td>
+                <td><code>{token}</code></td>
+                <td><code>{success}</code></td>
+            </tr>
+            <tr>
+                <td>POST</td>
+                <td><code>/auth/password-reset</code></td>
+                <td><code>{email}</code></td>
+                <td><code>{success}</code></td>
+            </tr>
+            <tr>
+                <td>POST</td>
+                <td><code>/auth/password-reset/confirm</code></td>
+                <td><code>{email, resetCode, newPassword}</code></td>
+                <td><code>{success}</code></td>
+            </tr>
+            <tr>
+                <td>PUT</td>
+                <td><code>/auth/password</code></td>
+                <td><code>{currentPassword, newPassword}</code></td>
+                <td><code>{success}</code></td>
+            </tr>
+            <tr>
+                <td>PUT</td>
+                <td><code>/users/profile</code></td>
+                <td><code>{firstName, lastName, phone}</code></td>
+                <td><code>{user}</code></td>
+            </tr>
+        </tbody>
+    </table>
+    <h3 id="transactions">Transactions</h3>
+    <table>
+        <colgroup>
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Method</th>
+                <th>Endpoint</th>
+                <th>Request Body</th>
+                <th>Response</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>POST</td>
+                <td><code>/transactions/expense</code></td>
+                <td><code>{amount, category, description, date}</code></td>
+                <td><code>{transaction}</code></td>
+            </tr>
+            <tr>
+                <td>POST</td>
+                <td><code>/transactions/income</code></td>
+                <td><code>{amount, category, description, date}</code></td>
+                <td><code>{transaction}</code></td>
+            </tr>
+            <tr>
+                <td>POST</td>
+                <td><code>/transactions/parse</code></td>
+                <td><code>{text}</code></td>
+                <td><code>{type, amount, category, description, date}</code></td>
+            </tr>
+            <tr>
+                <td>GET</td>
+                <td><code>/transactions?month=X&year=Y</code></td>
+                <td>-</td>
+                <td><code>{transactions[]}</code></td>
+            </tr>
+            <tr>
+                <td>PUT</td>
+                <td><code>/transactions/:id</code></td>
+                <td><code>{amount, category, description, date}</code></td>
+                <td><code>{transaction}</code></td>
+            </tr>
+            <tr>
+                <td>DELETE</td>
+                <td><code>/transactions/:id</code></td>
+                <td>-</td>
+                <td><code>{success}</code></td>
+            </tr>
+        </tbody>
+    </table>
+    <h3 id="budget">Budget</h3>
+    <table>
+        <colgroup>
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Method</th>
+                <th>Endpoint</th>
+                <th>Request Body</th>
+                <th>Response</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>POST</td>
+                <td><code>/budget</code></td>
+                <td><code>{amount, month, year}</code></td>
+                <td><code>{budget}</code></td>
+            </tr>
+            <tr>
+                <td>GET</td>
+                <td><code>/budget?month=X&year=Y</code></td>
+                <td>-</td>
+                <td><code>{budget, spent, remaining, percentage}</code></td>
+            </tr>
+        </tbody>
+    </table>
+    <h3 id="analytics">Analytics</h3>
+    <table>
+        <colgroup>
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+            <col style="width: 25%" />
+        </colgroup>
+        <thead>
+            <tr>
+                <th>Method</th>
+                <th>Endpoint</th>
+                <th>Request Body</th>
+                <th>Response</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>GET</td>
+                <td><code>/analytics/summary?month=X&year=Y</code></td>
+                <td>-</td>
+                <td><code>{totalIncome, totalExpense, balance}</code></td>
+            </tr>
+            <tr>
+                <td>GET</td>
+                <td><code>/analytics/categories?month=X&year=Y</code></td>
+                <td>-</td>
+                <td><code>{categories[]}</code></td>
+            </tr>
+            <tr>
+                <td>GET</td>
+                <td><code>/analytics/charts?period=monthly</code></td>
+                <td>-</td>
+                <td>Chart data</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr />
+    <h2 id="use-case-descriptions">6. Use Case Descriptions</h2>
+    <h3 id="uc-1-user-signup">UC-1: User Signup</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is not already registered<br />
+        <strong>Postconditions:</strong> New user account created and user
+        logged in<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User selects “Sign Up”</li>
+        <li>System displays signup form</li>
+        <li>User fills in email and password</li>
+        <li>System validates input</li>
+        <li>If valid, system creates account and generates token</li>
+        <li>User receives confirmation and is redirected to home screen</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>Email already exists → notify user</li>
+        <li>Password doesn’t meet requirements → request correction</li>
+        <li>Missing fields → request completion</li>
+    </ul>
+    <hr />
+    <h3 id="uc-2-user-login">UC-2: User Login</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User has registered account<br />
+        <strong>Postconditions:</strong> User is logged in<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User selects “Login”</li>
+        <li>System displays login form</li>
+        <li>User enters email and password</li>
+        <li>System validates credentials</li>
+        <li>If correct, system redirects to home screen</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>Invalid credentials → allow retry</li>
+        <li>User can click “Forgot Password”</li>
+    </ul>
+    <hr />
+    <h3 id="uc-3-forgot-password">UC-3: Forgot Password</h3>
+    <p><strong>Actors:</strong> User, Email Service<br />
+        <strong>Preconditions:</strong> User has valid registered email<br />
+        <strong>Postconditions:</strong> Password is updated<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User selects “Forgot Password”</li>
+        <li>System asks for email</li>
+        <li>User provides email</li>
+        <li>System sends reset code via email</li>
+        <li>User enters code and new password</li>
+        <li>System updates password</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>Email not found → notify user (but don’t reveal)</li>
+        <li>Reset code expires → allow retry</li>
+    </ul>
+    <hr />
+    <h3 id="uc-4-change-password">UC-4: Change Password</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is logged in<br />
+        <strong>Postconditions:</strong> Password is changed<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User selects “Change Password”</li>
+        <li>System shows password form</li>
+        <li>User enters current and new password</li>
+        <li>System validates current password</li>
+        <li>If valid, updates password</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>Current password incorrect → notify user</li>
+        <li>New passwords don’t match → request correction</li>
+    </ul>
+    <hr />
+    <h3 id="uc-5-logout">UC-5: Logout</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is logged in<br />
+        <strong>Postconditions:</strong> User is logged out<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User clicks “Logout”</li>
+        <li>System clears session</li>
+        <li>User redirected to login</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>Session expired → redirect to login automatically</li>
+    </ul>
+    <hr />
+    <h3 id="uc-6-add-expense-manual">UC-6: Add Expense (Manual)</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is logged in<br />
+        <strong>Postconditions:</strong> Expense recorded<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User selects “Add Expense”</li>
+        <li>System shows expense form</li>
+        <li>User fills in details and submits</li>
+        <li>System validates and saves</li>
+        <li>Updated history displayed</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>Invalid fields → request correction</li>
+        <li>Database error → show error message</li>
+    </ul>
+    <hr />
+    <h3 id="uc-7-add-income-manual">UC-7: Add Income (Manual)</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is logged in<br />
+        <strong>Postconditions:</strong> Income recorded<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User selects “Add Income”</li>
+        <li>System displays form</li>
+        <li>User fills in fields</li>
+        <li>System validates and saves</li>
+        <li>Income list updates</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>Invalid input → request correction</li>
+        <li>Database error → show error</li>
+    </ul>
+    <hr />
+    <h3 id="uc-8-add-expense-via-nlp">UC-8: Add Expense via NLP</h3>
+    <p><strong>Actors:</strong> User, AI Parser<br />
+        <strong>Preconditions:</strong> User is logged in, AI service
+        running<br />
+        <strong>Postconditions:</strong> Expense recorded<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User types expense in natural language</li>
+        <li>AI processes and extracts values</li>
+        <li>System autofills form with extracted data</li>
+        <li>User reviews, edits if needed, and submits</li>
+        <li>System saves expense</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>AI misinterprets → user edits manually</li>
+        <li>AI fails → prompt manual entry</li>
+    </ul>
+    <hr />
+    <h3 id="uc-9-add-income-via-nlp">UC-9: Add Income via NLP</h3>
+    <p><strong>Actors:</strong> User, AI Parser<br />
+        <strong>Preconditions:</strong> User is logged in, AI service
+        available<br />
+        <strong>Postconditions:</strong> Income recorded<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User types income in natural language</li>
+        <li>AI parses and extracts values</li>
+        <li>System autofills form</li>
+        <li>User reviews, edits if required, and submits</li>
+        <li>System stores transaction</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>AI misreads → user edits manually</li>
+        <li>AI cannot parse → prompt manual entry</li>
+    </ul>
+    <hr />
+    <h3 id="uc-10-edit-transaction">UC-10: Edit Transaction</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is logged in, transaction
+        exists<br />
+        <strong>Postconditions:</strong> Transaction updated<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User navigates to transaction history</li>
+        <li>User selects transaction and clicks “Edit”</li>
+        <li>System displays current details</li>
+        <li>User updates fields and saves</li>
+        <li>System validates and updates record</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>Invalid fields → request correction</li>
+        <li>System error prevents update</li>
+    </ul>
+    <hr />
+    <h3 id="uc-11-delete-transaction">UC-11: Delete Transaction</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is logged in, transaction
+        exists<br />
+        <strong>Postconditions:</strong> Transaction deleted<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User views transaction history</li>
+        <li>User selects transaction and clicks “Delete”</li>
+        <li>System asks for confirmation</li>
+        <li>User confirms</li>
+        <li>System removes record and updates totals</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>User cancels deletion</li>
+        <li>System error prevents removal</li>
+    </ul>
+    <hr />
+    <h3 id="uc-12-view-monthly-history">UC-12: View Monthly History</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is logged in<br />
+        <strong>Postconditions:</strong> Monthly transactions displayed<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User navigates to History section</li>
+        <li>System fetches current month’s records</li>
+        <li>System displays transactions sorted by date</li>
+        <li>User can view details or edit/delete</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>No transactions → show “No records”</li>
+    </ul>
+    <hr />
+    <h3 id="uc-13-view-spending-charts">UC-13: View Spending Charts</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is logged in, data exists<br />
+        <strong>Postconditions:</strong> Charts displayed<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User selects “Charts” option</li>
+        <li>System retrieves financial data</li>
+        <li>System generates visual charts</li>
+        <li>User views or filters by category/month</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>No data → display message</li>
+        <li>System error loading charts</li>
+    </ul>
+    <hr />
+    <h3 id="uc-14-view-monthly-summary">UC-14: View Monthly Summary</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is logged in, data exists<br />
+        <strong>Postconditions:</strong> Monthly totals displayed<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User opens “Summary” section</li>
+        <li>System aggregates income and expense data</li>
+        <li>System displays totals and balance</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>No data → show “No summary available”</li>
+    </ul>
+    <hr />
+    <h3 id="uc-15-get-overspending-alerts">UC-15: Get Overspending
+        Alerts</h3>
+    <p><strong>Actors:</strong> User, System (automatic)<br />
+        <strong>Preconditions:</strong> User has set budget, recorded
+        expenses<br />
+        <strong>Postconditions:</strong> User receives alert<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User records expenses throughout month</li>
+        <li>System tracks total spending</li>
+        <li>When spending exceeds budget, system triggers alert</li>
+        <li>User notified via in-app message</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>No budget set → alert not generated</li>
+        <li>Notification permissions disabled</li>
+    </ul>
+    <hr />
+    <h3 id="uc-16-add-monthly-budget">UC-16: Add Monthly Budget</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User is logged in<br />
+        <strong>Postconditions:</strong> Monthly budget created<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User selects “Add Budget”</li>
+        <li>System displays input field</li>
+        <li>User enters budget limit and submits</li>
+        <li>System saves and confirms</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>Invalid input → request correction</li>
+    </ul>
+    <hr />
+    <h3 id="uc-17-track-budget-progress">UC-17: Track Budget Progress</h3>
+    <p><strong>Actors:</strong> User<br />
+        <strong>Preconditions:</strong> User has set budget, expenses
+        exist<br />
+        <strong>Postconditions:</strong> Progress displayed<br />
+        <strong>Flow:</strong>
+    </p>
+    <ol type="1">
+        <li>User navigates to “Budget Progress”</li>
+        <li>System retrieves budget and expenses</li>
+        <li>System calculates percentage used</li>
+        <li>System displays progress bar</li>
+    </ol>
+    <p><strong>Exception Conditions:</strong></p>
+    <ul>
+        <li>No budget set → prompt to create one</li>
+        <li>No expenses recorded yet</li>
+    </ul>
+    <hr />
+    <h2 id="security-performance">7. Security & Performance</h2>
+    <h3 id="security-measures">Security Measures</h3>
+    <ul>
+        <li><strong>Password Hashing:</strong> bcrypt with salt rounds ≥ 10</li>
+        <li><strong>JWT Tokens:</strong> Short expiry (15-30 minutes)</li>
+        <li><strong>Session Management:</strong> Database-stored, invalidation
+            on password change</li>
+        <li><strong>Rate Limiting:</strong> 5 auth attempts/15 min, 100 API
+            requests/min</li>
+        <li><strong>Input Validation:</strong> Server-side validation,
+            parameterized queries</li>
+        <li><strong>HTTPS Only:</strong> All communication encrypted</li>
+    </ul>
+    <h3 id="performance-considerations">Performance Considerations</h3>
+    <ul>
+        <li>System responds within 30 seconds (standard timeout)</li>
+        <li>Statistical operations may take longer</li>
+        <li>Real-time data processing requires adequate hardware</li>
+        <li>Database: MongoDB/Firestore handles concurrent requests</li>
+        <li>Offline capability planned for future iterations</li>
+    </ul>
+    <hr />
+    <p>This document provides a complete architectural overview of the
+        myBudget app with simplified sequence diagrams matching the OES
+        reference pattern.</p>
+</body>
+
+</html>
