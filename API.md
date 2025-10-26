@@ -1,9 +1,14 @@
 ---
 title: myBudget API v1.0.0
 language_tabs:
-  - curl: Curl
-language_clients:
-  - curl: ""
+  - shell: Shell
+  - http: HTTP
+  - javascript: JavaScript
+  - ruby: Ruby
+  - python: Python
+  - php: PHP
+  - java: Java
+  - go: Go
 toc_footers: []
 includes: []
 search: true
@@ -31,8 +36,6 @@ Base URLs:
 <h1 id="mybudget-api-default">Default</h1>
 
 ## post__auth_signup
-
-> Code samples
 
 `POST /auth/signup`
 
@@ -145,8 +148,6 @@ This operation does not require authentication
 
 ## post__auth_login
 
-> Code samples
-
 `POST /auth/login`
 
 *Login with email and password*
@@ -257,8 +258,6 @@ This operation does not require authentication
 </aside>
 
 ## post__auth_login_webauthn
-
-> Code samples
 
 `POST /auth/login/webauthn`
 
@@ -371,8 +370,6 @@ This operation does not require authentication
 
 ## post__auth_refresh
 
-> Code samples
-
 `POST /auth/refresh`
 
 *Refresh access token*
@@ -463,8 +460,6 @@ This operation does not require authentication
 
 ## post__auth_forgot-password
 
-> Code samples
-
 `POST /auth/forgot-password`
 
 *Request password reset email*
@@ -549,8 +544,6 @@ This operation does not require authentication
 </aside>
 
 ## post__auth_reset-password
-
-> Code samples
 
 `POST /auth/reset-password`
 
@@ -638,8 +631,6 @@ This operation does not require authentication
 </aside>
 
 ## put__auth_change-password
-
-> Code samples
 
 `PUT /auth/change-password`
 
@@ -743,8 +734,6 @@ bearerAuth
 
 ## post__auth_logout
 
-> Code samples
-
 `POST /auth/logout`
 
 *Logout and invalidate tokens*
@@ -831,8 +820,6 @@ bearerAuth
 
 ## get__auth_profile
 
-> Code samples
-
 `GET /auth/profile`
 
 *Get authenticated user profile*
@@ -909,8 +896,6 @@ bearerAuth
 </aside>
 
 ## put__auth_profile
-
-> Code samples
 
 `PUT /auth/profile`
 
@@ -1021,8 +1006,6 @@ bearerAuth
 </aside>
 
 ## post__transactions_expense
-
-> Code samples
 
 `POST /transactions/expense`
 
@@ -1136,8 +1119,6 @@ bearerAuth
 
 ## post__transactions_income
 
-> Code samples
-
 `POST /transactions/income`
 
 *Add manual income*
@@ -1250,8 +1231,6 @@ bearerAuth
 
 ## post__transactions_expense_nlp
 
-> Code samples
-
 `POST /transactions/expense/nlp`
 
 *Add expense via NLP*
@@ -1357,8 +1336,6 @@ bearerAuth
 </aside>
 
 ## post__transactions_income_nlp
-
-> Code samples
 
 `POST /transactions/income/nlp`
 
@@ -1466,8 +1443,6 @@ bearerAuth
 
 ## get__transactions
 
-> Code samples
-
 `GET /transactions`
 
 *Get filtered transactions*
@@ -1574,8 +1549,6 @@ bearerAuth
 
 ## get__transactions_{id}
 
-> Code samples
-
 `GET /transactions/{id}`
 
 *Get transaction by ID*
@@ -1670,8 +1643,6 @@ bearerAuth
 </aside>
 
 ## put__transactions_{id}
-
-> Code samples
 
 `PUT /transactions/{id}`
 
@@ -1798,8 +1769,6 @@ bearerAuth
 
 ## delete__transactions_{id}
 
-> Code samples
-
 `DELETE /transactions/{id}`
 
 *Delete transaction*
@@ -1877,8 +1846,6 @@ bearerAuth
 
 ## get__transactions_history_current-month
 
-> Code samples
-
 `GET /transactions/history/current-month`
 
 *Get current month's transaction history*
@@ -1953,8 +1920,6 @@ bearerAuth
 </aside>
 
 ## get__transactions_history_{month}_{year}
-
-> Code samples
 
 `GET /transactions/history/{month}/{year}`
 
@@ -2051,8 +2016,6 @@ bearerAuth
 </aside>
 
 ## post__budget
-
-> Code samples
 
 `POST /budget`
 
@@ -2164,8 +2127,6 @@ bearerAuth
 
 ## get__budget
 
-> Code samples
-
 `GET /budget`
 
 *Get current month's budget*
@@ -2254,8 +2215,6 @@ bearerAuth
 </aside>
 
 ## get__budget_{month}_{year}
-
-> Code samples
 
 `GET /budget/{month}/{year}`
 
@@ -2367,8 +2326,6 @@ bearerAuth
 
 ## delete__budget_{month}_{year}
 
-> Code samples
-
 `DELETE /budget/{month}/{year}`
 
 *Delete budget for specific month/year*
@@ -2455,8 +2412,6 @@ bearerAuth
 
 ## get__budget_status
 
-> Code samples
-
 `GET /budget/status`
 
 *Get budget status*
@@ -2531,8 +2486,6 @@ bearerAuth
 </aside>
 
 ## get__budget_alerts
-
-> Code samples
 
 `GET /budget/alerts`
 
@@ -2609,8 +2562,6 @@ bearerAuth
 </aside>
 
 ## get__analytics_summary_{month}_{year}
-
-> Code samples
 
 `GET /analytics/summary/{month}/{year}`
 
@@ -2700,8 +2651,6 @@ bearerAuth
 </aside>
 
 ## get__analytics_charts_category
-
-> Code samples
 
 `GET /analytics/charts/category`
 
@@ -2803,8 +2752,6 @@ bearerAuth
 
 ## get__analytics_charts_monthly-trend_{year}
 
-> Code samples
-
 `GET /analytics/charts/monthly-trend/{year}`
 
 *Get spending trends over months*
@@ -2897,8 +2844,6 @@ bearerAuth
 </aside>
 
 ## get__analytics_income-vs-expense_{month}_{year}
-
-> Code samples
 
 `GET /analytics/income-vs-expense/{month}/{year}`
 
@@ -2993,8 +2938,6 @@ bearerAuth
 
 ## get__categories_expense
 
-> Code samples
-
 `GET /categories/expense`
 
 *Get expense categories*
@@ -3072,8 +3015,6 @@ bearerAuth
 
 ## get__categories_income
 
-> Code samples
-
 `GET /categories/income`
 
 *Get income categories*
@@ -3150,8 +3091,6 @@ bearerAuth
 </aside>
 
 ## post__categories_custom
-
-> Code samples
 
 `POST /categories/custom`
 
