@@ -1,0 +1,1587 @@
+openapi: 3.0.3
+info:
+  title: myBudget API
+  description: API for managing authentication, transactions, budgets, categories, and financial analytics.
+  version: 1.0.0
+servers:
+  - url: https://api.mybudget.com/v1
+    description: Production server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Access token obtained via /auth/login
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        verified:
+          type: boolean
+        last_login:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - verified
+        - created_at
+        - updated_at
+    Tokens:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+      required:
+        - access_token
+        - refresh_token
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - income
+            - expense
+        amount:
+          type: number
+          minimum: 0.01
+        category:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date-time
+      required:
+        - id
+        - type
+        - amount
+        - category
+        - date
+    Budget:
+      type: object
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        amount:
+          type: number
+          minimum: 0.01
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        year:
+          type: integer
+          minimum: 2000
+          maximum: 2100
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - user_id
+        - amount
+        - month
+        - year
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - income
+            - expense
+        icon:
+          type: string
+        color:
+          type: string
+        is_custom:
+          type: boolean
+      required:
+        - id
+        - name
+        - type
+        - is_custom
+    BudgetStatus:
+      type: object
+      properties:
+        budget:
+          type: object
+          properties:
+            amount:
+              type: number
+            month:
+              type: integer
+            year:
+              type: integer
+        spending:
+          type: object
+          properties:
+            total_spent:
+              type: number
+            remaining:
+              type: number
+            percentage_used:
+              type: number
+              minimum: 0
+              maximum: 100
+            is_overspent:
+              type: boolean
+            overspent_amount:
+              type: number
+    BudgetAlert:
+      type: object
+      properties:
+        has_alert:
+          type: boolean
+        alert_type:
+          type: string
+          enum:
+            - overspending
+            - approaching_limit
+            - none
+        budget:
+          type: object
+          properties:
+            amount:
+              type: number
+            month:
+              type: integer
+            year:
+              type: integer
+        spending:
+          type: object
+          properties:
+            total_spent:
+              type: number
+            overspent_amount:
+              type: number
+            percentage_over:
+              type: number
+        message:
+          type: string
+    MonthlySummary:
+      type: object
+      properties:
+        month:
+          type: integer
+        year:
+          type: integer
+        total_income:
+          type: number
+        total_expense:
+          type: number
+        balance:
+          type: number
+    CategoryBreakdown:
+      type: object
+      properties:
+        month:
+          type: integer
+        year:
+          type: integer
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              icon:
+                type: string
+              color:
+                type: string
+              total_spent:
+                type: number
+              percentage:
+                type: number
+    MonthlyTrend:
+      type: object
+      properties:
+        year:
+          type: integer
+        months:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: integer
+              total_income:
+                type: number
+              total_expense:
+                type: number
+              balance:
+                type: number
+    IncomeVsExpense:
+      type: object
+      properties:
+        month:
+          type: integer
+        year:
+          type: integer
+        total_income:
+          type: number
+        total_expense:
+          type: number
+        difference:
+          type: number
+        income_percentage:
+          type: number
+        expense_percentage:
+          type: number
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                enum:
+                  - false
+              error:
+                type: string
+            required:
+              - success
+              - error
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                enum:
+                  - false
+              error:
+                type: string
+            required:
+              - success
+              - error
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                enum:
+                  - false
+              error:
+                type: string
+            required:
+              - success
+              - error
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                enum:
+                  - false
+              error:
+                type: string
+            required:
+              - success
+              - error
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                enum:
+                  - false
+              error:
+                type: string
+            required:
+              - success
+              - error
+paths:
+  /auth/signup:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+              required:
+                - name
+                - email
+                - password
+      responses:
+        '201':
+          description: User registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /auth/login:
+    post:
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                      refresh_token:
+                        type: string
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/login/webauthn:
+    post:
+      summary: Login using WebAuthn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                webauthn_response:
+                  type: object
+              required:
+                - email
+                - webauthn_response
+      responses:
+        '200':
+          description: WebAuthn login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                      refresh_token:
+                        type: string
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+              required:
+                - refresh_token
+      responses:
+        '200':
+          description: Tokens refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: '#/components/schemas/Tokens'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/forgot-password:
+    post:
+      summary: Request password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+              required:
+                - email
+      responses:
+        '200':
+          description: Reset email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /auth/reset-password:
+    post:
+      summary: Reset password using token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                new_password:
+                  type: string
+                  minLength: 6
+              required:
+                - token
+                - new_password
+      responses:
+        '200':
+          description: Password reset
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/change-password:
+    put:
+      summary: Change password (authenticated)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                new_password:
+                  type: string
+                  minLength: 6
+              required:
+                - old_password
+                - new_password
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /auth/logout:
+    post:
+      summary: Logout and invalidate tokens
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+              required:
+                - refresh_token
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/profile:
+    get:
+      summary: Get authenticated user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      summary: Update user profile
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phone:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /transactions/expense:
+    post:
+      summary: Add manual expense
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  minimum: 0.01
+                category:
+                  type: string
+                description:
+                  type: string
+                date:
+                  type: string
+                  format: date
+              required:
+                - amount
+                - category
+                - date
+      responses:
+        '200':
+          description: Expense added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      transaction:
+                        $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /transactions/income:
+    post:
+      summary: Add manual income
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  minimum: 0.01
+                category:
+                  type: string
+                description:
+                  type: string
+                date:
+                  type: string
+                  format: date
+              required:
+                - amount
+                - category
+                - date
+      responses:
+        '200':
+          description: Income added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      transaction:
+                        $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /transactions/expense/nlp:
+    post:
+      summary: Add expense via NLP
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  minLength: 1
+              required:
+                - text
+      responses:
+        '200':
+          description: NLP expense added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      transaction:
+                        $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /transactions/income/nlp:
+    post:
+      summary: Add income via NLP
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  minLength: 1
+              required:
+                - text
+      responses:
+        '200':
+          description: NLP income added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      transaction:
+                        $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /transactions:
+    get:
+      summary: Get filtered transactions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: query
+          schema:
+            type: integer
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum:
+              - income
+              - expense
+      responses:
+        '200':
+          description: Transactions retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      transactions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /transactions/{id}:
+    get:
+      summary: Get transaction by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      transaction:
+                        $ref: '#/components/schemas/Transaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update transaction
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  minimum: 0.01
+                category:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Transaction updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      transaction:
+                        $ref: '#/components/schemas/Transaction'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete transaction
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /transactions/history/current-month:
+    get:
+      summary: Get current month's transaction history
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: History retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      month:
+                        type: string
+                      year:
+                        type: integer
+                      transactions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            amount:
+                              type: number
+                            category:
+                              type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /transactions/history/{month}/{year}:
+    get:
+      summary: Get history for specific month/year
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: History retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      month:
+                        type: integer
+                      year:
+                        type: integer
+                      transactions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            type:
+                              type: string
+                            amount:
+                              type: number
+                            category:
+                              type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /budget:
+    post:
+      summary: Create or update monthly budget
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  minimum: 0.01
+                month:
+                  type: integer
+                  minimum: 1
+                  maximum: 12
+                year:
+                  type: integer
+              required:
+                - amount
+      responses:
+        '200':
+          description: Budget saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      budget:
+                        $ref: '#/components/schemas/Budget'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    get:
+      summary: Get current month's budget
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Budget retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      budget:
+                        $ref: '#/components/schemas/Budget'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /budget/{month}/{year}:
+    get:
+      summary: Get budget for specific month/year
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Budget retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      budget:
+                        $ref: '#/components/schemas/Budget'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      summary: Delete budget for specific month/year
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Budget deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      deleted:
+                        type: boolean
+                        enum:
+                          - true
+                      budget_id:
+                        type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /budget/status:
+    get:
+      summary: Get budget status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /budget/alerts:
+    get:
+      summary: Check for budget alerts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Alerts retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetAlert'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /analytics/summary/{month}/{year}:
+    get:
+      summary: Get monthly financial summary
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Summary retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: '#/components/schemas/MonthlySummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /analytics/charts/category:
+    get:
+      summary: Get category-wise spending breakdown
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Category breakdown retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: '#/components/schemas/CategoryBreakdown'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /analytics/charts/monthly-trend/{year}:
+    get:
+      summary: Get spending trends over months
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Monthly trend retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: '#/components/schemas/MonthlyTrend'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /analytics/income-vs-expense/{month}/{year}:
+    get:
+      summary: Get income vs expense comparison
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Comparison retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    $ref: '#/components/schemas/IncomeVsExpense'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /categories/expense:
+    get:
+      summary: Get expense categories
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Categories retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      categories:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /categories/income:
+    get:
+      summary: Get income categories
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Categories retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      categories:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /categories/custom:
+    post:
+      summary: Create custom category
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                type:
+                  type: string
+                  enum:
+                    - income
+                    - expense
+                icon:
+                  type: string
+                color:
+                  type: string
+              required:
+                - name
+                - type
+      responses:
+        '200':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    enum:
+                      - true
+                  data:
+                    type: object
+                    properties:
+                      category:
+                        $ref: '#/components/schemas/Category'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
